@@ -68,13 +68,13 @@ jobs:
                     coverage: "none"
                     tools: "composer-dependency-analyser"
 
+            -   name: "Remove require-dev section"
+                run: "composer config --unset require-dev"
+
             -   name: "Install composer dependencies"
                 uses: "ramsey/composer-install@v3"
                 with:
                     dependency-versions: "${{ matrix.dependencies }}"
-
-            -   name: "Remove require-dev section"
-                run: "composer config --unset require-dev"
 
             -   name: "Run dependency analysis"
                 run: "composer-dependency-analyser"
