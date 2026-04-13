@@ -6,13 +6,18 @@ namespace Setono\DependencyTracker\Tests\Command;
 
 use Composer\Composer;
 use Composer\Config as ComposerConfig;
+use Composer\EventDispatcher\EventDispatcher;
 use PHPUnit\Framework\TestCase;
+use Prophecy\Argument;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Setono\DependencyTracker\Command\InitCommand;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 
 final class InitCommandTest extends TestCase
 {
+    use ProphecyTrait;
+
     private string $projectRoot;
 
     protected function setUp(): void
@@ -88,16 +93,18 @@ final class InitCommandTest extends TestCase
 
     private function createCommand(): InitCommand
     {
-        $composerConfig = $this->createMock(ComposerConfig::class);
-        $composerConfig->method('get')
-            ->with('vendor-dir')
-            ->willReturn($this->projectRoot . '/vendor');
+        $composerConfig = $this->prophesize(ComposerConfig::class);
+        $composerConfig->get('vendor-dir')->willReturn($this->projectRoot . '/vendor');
 
-        $composer = $this->createMock(Composer::class);
-        $composer->method('getConfig')->willReturn($composerConfig);
+        $eventDispatcher = $this->prophesize(EventDispatcher::class);
+        $eventDispatcher->dispatch(Argument::cetera())->willReturn(0);
+
+        $composer = $this->prophesize(Composer::class);
+        $composer->getConfig()->willReturn($composerConfig->reveal());
+        $composer->getEventDispatcher()->willReturn($eventDispatcher->reveal());
 
         $command = new InitCommand();
-        $command->setComposer($composer);
+        $command->setComposer($composer->reveal());
 
         return $command;
     }

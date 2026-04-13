@@ -9,7 +9,8 @@
     },
     "require-dev": {
         "composer/composer": "^2.0",
-        "phpunit/phpunit": "^11.0"
+        "phpunit/phpunit": "^11.0",
+        "phpspec/prophecy-phpunit": "^2.5"
     },
     "autoload": {
         "psr-4": {

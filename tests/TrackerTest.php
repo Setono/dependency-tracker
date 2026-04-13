@@ -5,23 +5,28 @@ declare(strict_types=1);
 namespace Setono\DependencyTracker\Tests;
 
 use Composer\IO\IOInterface;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Prophecy\Argument;
+use Prophecy\PhpUnit\ProphecyTrait;
+use Prophecy\Prophecy\ObjectProphecy;
 use Setono\DependencyTracker\Config;
 use Setono\DependencyTracker\Tracker;
 
 final class TrackerTest extends TestCase
 {
+    use ProphecyTrait;
+
     private string $projectRoot;
 
-    private IOInterface&MockObject $io;
+    /** @var ObjectProphecy<IOInterface> */
+    private ObjectProphecy $io;
 
     protected function setUp(): void
     {
         $this->projectRoot = sys_get_temp_dir() . '/dependency-tracker-test-' . uniqid();
         mkdir($this->projectRoot, 0777, true);
 
-        $this->io = $this->createMock(IOInterface::class);
+        $this->io = $this->prophesize(IOInterface::class);
     }
 
     protected function tearDown(): void
@@ -34,7 +39,7 @@ final class TrackerTest extends TestCase
     public function testRunCreatesSnapshotDirectory(): void
     {
         $config = new Config();
-        $tracker = new Tracker($this->io, $this->projectRoot, $config);
+        $tracker = new Tracker($this->io->reveal(), $this->projectRoot, $config);
 
         $tracker->run();
 
@@ -44,7 +49,7 @@ final class TrackerTest extends TestCase
     public function testRunCreatesGitignore(): void
     {
         $config = new Config();
-        $tracker = new Tracker($this->io, $this->projectRoot, $config);
+        $tracker = new Tracker($this->io->reveal(), $this->projectRoot, $config);
 
         $tracker->run();
 
@@ -63,7 +68,7 @@ final class TrackerTest extends TestCase
         file_put_contents($snapshotDir . '/.gitignore', 'custom content');
 
         $config = new Config();
-        $tracker = new Tracker($this->io, $this->projectRoot, $config);
+        $tracker = new Tracker($this->io->reveal(), $this->projectRoot, $config);
 
         $tracker->run();
 
@@ -75,7 +80,7 @@ final class TrackerTest extends TestCase
         $config = new Config();
         $config->setOutputDir('.custom-snapshots');
 
-        $tracker = new Tracker($this->io, $this->projectRoot, $config);
+        $tracker = new Tracker($this->io->reveal(), $this->projectRoot, $config);
         $tracker->run();
 
         self::assertDirectoryExists($this->projectRoot . '/.custom-snapshots');
@@ -86,12 +91,11 @@ final class TrackerTest extends TestCase
         $config = new Config();
         $config->track('vendor/nonexistent/path');
 
-        $this->io->expects(self::once())
-            ->method('writeError')
-            ->with(self::stringContains('Tracked path does not exist, skipping: vendor/nonexistent/path'));
-
-        $tracker = new Tracker($this->io, $this->projectRoot, $config);
+        $tracker = new Tracker($this->io->reveal(), $this->projectRoot, $config);
         $tracker->run();
+
+        $this->io->writeError(Argument::containingString('Tracked path does not exist, skipping: vendor/nonexistent/path'))
+            ->shouldHaveBeenCalledOnce();
     }
 
     public function testRunContinuesAfterNonExistentPath(): void
@@ -102,7 +106,7 @@ final class TrackerTest extends TestCase
         $config->track('vendor/nonexistent/path');
         $config->track('vendor/existing/file.txt');
 
-        $tracker = new Tracker($this->io, $this->projectRoot, $config);
+        $tracker = new Tracker($this->io->reveal(), $this->projectRoot, $config);
         $tracker->run();
 
         self::assertFileExists($this->projectRoot . '/.dependency-snapshots/vendor/existing/file.txt');
@@ -118,25 +122,11 @@ final class TrackerTest extends TestCase
         $config->track('vendor/nonexistent/path');
         $config->track('vendor/b/dir');
 
-        $this->io->expects(self::atLeastOnce())
-            ->method('write')
-            ->with(
-                self::callback(function (string $message): bool {
-                    // Check the summary message specifically
-                    if (str_contains($message, 'Snapshotted')) {
-                        $this->assertStringContainsString('Snapshotted 2 path(s)', $message);
-
-                        return true;
-                    }
-
-                    return true;
-                }),
-                self::anything(),
-                self::anything(),
-            );
-
-        $tracker = new Tracker($this->io, $this->projectRoot, $config);
+        $tracker = new Tracker($this->io->reveal(), $this->projectRoot, $config);
         $tracker->run();
+
+        $this->io->write(Argument::containingString('Snapshotted 2 path(s)'))
+            ->shouldHaveBeenCalled();
     }
 
     // --- Directory sync tests ---
@@ -154,7 +144,7 @@ final class TrackerTest extends TestCase
         $config = new Config();
         $config->track('vendor/acme/package/src');
 
-        $tracker = new Tracker($this->io, $this->projectRoot, $config);
+        $tracker = new Tracker($this->io->reveal(), $this->projectRoot, $config);
         $tracker->run();
 
         $snapshotBase = $this->projectRoot . '/.dependency-snapshots/vendor/acme/package/src';
@@ -173,7 +163,7 @@ final class TrackerTest extends TestCase
         $config = new Config();
         $config->track('vendor/acme/package/src');
 
-        $tracker = new Tracker($this->io, $this->projectRoot, $config);
+        $tracker = new Tracker($this->io->reveal(), $this->projectRoot, $config);
         $tracker->run();
 
         $snapshotBase = $this->projectRoot . '/.dependency-snapshots/vendor/acme/package/src';
@@ -202,7 +192,7 @@ final class TrackerTest extends TestCase
         $config = new Config();
         $config->track('vendor/acme/package/config')->recursive(false);
 
-        $tracker = new Tracker($this->io, $this->projectRoot, $config);
+        $tracker = new Tracker($this->io->reveal(), $this->projectRoot, $config);
         $tracker->run();
 
         $snapshotBase = $this->projectRoot . '/.dependency-snapshots/vendor/acme/package/config';
@@ -222,7 +212,7 @@ final class TrackerTest extends TestCase
         $config = new Config();
         $config->track('vendor/acme/package/src')->filter('*.php');
 
-        $tracker = new Tracker($this->io, $this->projectRoot, $config);
+        $tracker = new Tracker($this->io->reveal(), $this->projectRoot, $config);
         $tracker->run();
 
         $snapshotBase = $this->projectRoot . '/.dependency-snapshots/vendor/acme/package/src';
@@ -242,7 +232,7 @@ final class TrackerTest extends TestCase
         $config = new Config();
         $config->track('vendor/acme/package/src')->filter('*.php', '*.xml');
 
-        $tracker = new Tracker($this->io, $this->projectRoot, $config);
+        $tracker = new Tracker($this->io->reveal(), $this->projectRoot, $config);
         $tracker->run();
 
         $snapshotBase = $this->projectRoot . '/.dependency-snapshots/vendor/acme/package/src';
@@ -260,7 +250,7 @@ final class TrackerTest extends TestCase
         $config = new Config();
         $config->track('vendor/acme/package/src')->filter('*.json');
 
-        $tracker = new Tracker($this->io, $this->projectRoot, $config);
+        $tracker = new Tracker($this->io->reveal(), $this->projectRoot, $config);
         $tracker->run();
 
         $snapshotBase = $this->projectRoot . '/.dependency-snapshots/vendor/acme/package/src';
@@ -278,7 +268,7 @@ final class TrackerTest extends TestCase
         $config = new Config();
         $config->track('vendor/acme/package/src');
 
-        $tracker = new Tracker($this->io, $this->projectRoot, $config);
+        $tracker = new Tracker($this->io->reveal(), $this->projectRoot, $config);
         $tracker->run();
 
         $snapshotBase = $this->projectRoot . '/.dependency-snapshots/vendor/acme/package/src';
@@ -300,7 +290,7 @@ final class TrackerTest extends TestCase
         $config = new Config();
         $config->track('vendor/acme/package/src')->filter('*.php');
 
-        $tracker = new Tracker($this->io, $this->projectRoot, $config);
+        $tracker = new Tracker($this->io->reveal(), $this->projectRoot, $config);
         $tracker->run();
 
         $snapshotBase = $this->projectRoot . '/.dependency-snapshots/vendor/acme/package/src';
@@ -319,7 +309,7 @@ final class TrackerTest extends TestCase
         $config = new Config();
         $config->track('vendor/acme/package/File.php');
 
-        $tracker = new Tracker($this->io, $this->projectRoot, $config);
+        $tracker = new Tracker($this->io->reveal(), $this->projectRoot, $config);
         $tracker->run();
 
         $dest = $this->projectRoot . '/.dependency-snapshots/vendor/acme/package/File.php';
@@ -334,7 +324,7 @@ final class TrackerTest extends TestCase
         $config = new Config();
         $config->track('vendor/acme/package/File.php');
 
-        $tracker = new Tracker($this->io, $this->projectRoot, $config);
+        $tracker = new Tracker($this->io->reveal(), $this->projectRoot, $config);
         $tracker->run();
 
         // Change source
@@ -353,7 +343,7 @@ final class TrackerTest extends TestCase
         $config = new Config();
         $config->track('vendor/acme/package/deep/nested/File.php');
 
-        $tracker = new Tracker($this->io, $this->projectRoot, $config);
+        $tracker = new Tracker($this->io->reveal(), $this->projectRoot, $config);
         $tracker->run();
 
         self::assertFileExists(
@@ -370,7 +360,7 @@ final class TrackerTest extends TestCase
         $config = new Config();
         $config->track('/vendor/acme/package/File.php');
 
-        $tracker = new Tracker($this->io, $this->projectRoot, $config);
+        $tracker = new Tracker($this->io->reveal(), $this->projectRoot, $config);
         $tracker->run();
 
         self::assertFileExists(
@@ -391,7 +381,7 @@ final class TrackerTest extends TestCase
         $config->track('vendor/acme/package/single.php');
         $config->track('vendor/acme/package/dir');
 
-        $tracker = new Tracker($this->io, $this->projectRoot, $config);
+        $tracker = new Tracker($this->io->reveal(), $this->projectRoot, $config);
         $tracker->run();
 
         $snapshot = $this->projectRoot . '/.dependency-snapshots';

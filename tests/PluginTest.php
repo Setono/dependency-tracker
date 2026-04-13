@@ -9,18 +9,24 @@ use Composer\Config as ComposerConfig;
 use Composer\IO\IOInterface;
 use Composer\Plugin\Capability\CommandProvider;
 use Composer\Script\ScriptEvents;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Prophecy\Argument;
+use Prophecy\PhpUnit\ProphecyTrait;
+use Prophecy\Prophecy\ObjectProphecy;
 use Setono\DependencyTracker\Command\CommandProvider as PluginCommandProvider;
 use Setono\DependencyTracker\Plugin;
 
 final class PluginTest extends TestCase
 {
+    use ProphecyTrait;
+
     private string $projectRoot;
 
-    private Composer&MockObject $composer;
+    /** @var ObjectProphecy<Composer> */
+    private ObjectProphecy $composer;
 
-    private IOInterface&MockObject $io;
+    /** @var ObjectProphecy<IOInterface> */
+    private ObjectProphecy $io;
 
     protected function setUp(): void
     {
@@ -28,15 +34,13 @@ final class PluginTest extends TestCase
         mkdir($this->projectRoot, 0777, true);
         mkdir($this->projectRoot . '/vendor', 0777, true);
 
-        $composerConfig = $this->createMock(ComposerConfig::class);
-        $composerConfig->method('get')
-            ->with('vendor-dir')
-            ->willReturn($this->projectRoot . '/vendor');
+        $composerConfig = $this->prophesize(ComposerConfig::class);
+        $composerConfig->get('vendor-dir')->willReturn($this->projectRoot . '/vendor');
 
-        $this->composer = $this->createMock(Composer::class);
-        $this->composer->method('getConfig')->willReturn($composerConfig);
+        $this->composer = $this->prophesize(Composer::class);
+        $this->composer->getConfig()->willReturn($composerConfig->reveal());
 
-        $this->io = $this->createMock(IOInterface::class);
+        $this->io = $this->prophesize(IOInterface::class);
     }
 
     protected function tearDown(): void
@@ -66,12 +70,12 @@ final class PluginTest extends TestCase
     public function testOnPostInstallOrUpdateSilentlyReturnsWhenConfigFileMissing(): void
     {
         $plugin = new Plugin();
-        $plugin->activate($this->composer, $this->io);
-
-        $this->io->expects(self::never())->method('write');
-        $this->io->expects(self::never())->method('writeError');
+        $plugin->activate($this->composer->reveal(), $this->io->reveal());
 
         $plugin->onPostInstallOrUpdate();
+
+        $this->io->write(Argument::cetera())->shouldNotHaveBeenCalled();
+        $this->io->writeError(Argument::cetera())->shouldNotHaveBeenCalled();
     }
 
     public function testOnPostInstallOrUpdateErrorsWhenConfigFileNotCallable(): void
@@ -82,13 +86,12 @@ final class PluginTest extends TestCase
         );
 
         $plugin = new Plugin();
-        $plugin->activate($this->composer, $this->io);
-
-        $this->io->expects(self::once())
-            ->method('writeError')
-            ->with(self::stringContains('must return a callable'));
+        $plugin->activate($this->composer->reveal(), $this->io->reveal());
 
         $plugin->onPostInstallOrUpdate();
+
+        $this->io->writeError(Argument::containingString('must return a callable'))
+            ->shouldHaveBeenCalledOnce();
     }
 
     public function testOnPostInstallOrUpdateVerboseNoticeWhenNoTracks(): void
@@ -99,17 +102,15 @@ final class PluginTest extends TestCase
         );
 
         $plugin = new Plugin();
-        $plugin->activate($this->composer, $this->io);
-
-        $this->io->expects(self::once())
-            ->method('write')
-            ->with(
-                self::stringContains('No paths configured, skipping'),
-                true,
-                IOInterface::VERBOSE,
-            );
+        $plugin->activate($this->composer->reveal(), $this->io->reveal());
 
         $plugin->onPostInstallOrUpdate();
+
+        $this->io->write(
+            Argument::containingString('No paths configured, skipping'),
+            true,
+            IOInterface::VERBOSE,
+        )->shouldHaveBeenCalledOnce();
     }
 
     public function testOnPostInstallOrUpdateRunsTrackerWithValidConfig(): void
@@ -125,7 +126,7 @@ final class PluginTest extends TestCase
         );
 
         $plugin = new Plugin();
-        $plugin->activate($this->composer, $this->io);
+        $plugin->activate($this->composer->reveal(), $this->io->reveal());
 
         $plugin->onPostInstallOrUpdate();
 
