@@ -48,7 +48,9 @@ final class Plugin implements PluginInterface, EventSubscriberInterface, Capable
 
     public function onPostInstallOrUpdate(): void
     {
-        $projectRoot = dirname($this->composer->getConfig()->get('vendor-dir'));
+        /** @var string $vendorDir */
+        $vendorDir = $this->composer->getConfig()->get('vendor-dir');
+        $projectRoot = dirname($vendorDir);
         $configFilePath = $projectRoot . '/dependency-tracker.php';
 
         if (!file_exists($configFilePath)) {

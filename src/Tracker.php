@@ -8,6 +8,7 @@ use Composer\IO\IOInterface;
 use DirectoryIterator;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
+use SplFileInfo;
 
 final class Tracker
 {
@@ -83,6 +84,7 @@ final class Tracker
             $iterator = new DirectoryIterator($source);
         }
 
+        /** @var SplFileInfo $file */
         foreach ($iterator as $file) {
             if ($file->isDir()) {
                 continue;
@@ -166,6 +168,7 @@ final class Tracker
             RecursiveIteratorIterator::CHILD_FIRST,
         );
 
+        /** @var SplFileInfo $file */
         foreach ($iterator as $file) {
             if ($file->isDir()) {
                 rmdir($file->getPathname());

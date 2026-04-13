@@ -18,7 +18,9 @@ final class InitCommand extends BaseCommand
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $projectRoot = dirname($this->requireComposer()->getConfig()->get('vendor-dir'));
+        /** @var string $vendorDir */
+        $vendorDir = $this->requireComposer()->getConfig()->get('vendor-dir');
+        $projectRoot = dirname($vendorDir);
         $configPath = $projectRoot . '/dependency-tracker.php';
 
         if (file_exists($configPath)) {
