@@ -314,6 +314,7 @@ jobs:
                 with:
                     php-version: "${{ matrix.php-version }}"
                     coverage: "pcov"
+                    tools: "infection"
 
             -   name: "Install composer dependencies"
                 uses: "ramsey/composer-install@v3"
@@ -321,6 +322,6 @@ jobs:
                     dependency-versions: "${{ matrix.dependencies }}"
 
             -   name: "Run infection"
-                run: "vendor/bin/infection"
+                run: "infection"
                 env:
                     STRYKER_DASHBOARD_API_KEY: "${{ secrets.STRYKER_DASHBOARD_API_KEY }}"
