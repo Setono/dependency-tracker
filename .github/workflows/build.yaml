@@ -69,6 +69,18 @@ jobs:
                     - "~7.4.0"
                     - "~8.0.0"
 
+                exclude:
+                    - symfony: "~6.0.0"
+                    - symfony: "~6.1.0"
+                    - symfony: "~6.2.0"
+                    - symfony: "~6.3.0"
+                    - symfony: "~7.0.0"
+                    - symfony: "~7.1.0"
+                    - php-version: "8.2"
+                      symfony: "~8.0.0"
+                    - php-version: "8.3"
+                      symfony: "~8.0.0"
+
         steps:
             -   name: "Checkout"
                 uses: "actions/checkout@v6"
@@ -122,6 +134,18 @@ jobs:
                     - "~7.4.0"
                     - "~8.0.0"
 
+                exclude:
+                    - symfony: "~6.0.0"
+                    - symfony: "~6.1.0"
+                    - symfony: "~6.2.0"
+                    - symfony: "~6.3.0"
+                    - symfony: "~7.0.0"
+                    - symfony: "~7.1.0"
+                    - php-version: "8.2"
+                      symfony: "~8.0.0"
+                    - php-version: "8.3"
+                      symfony: "~8.0.0"
+
         steps:
             -   name: "Checkout"
                 uses: "actions/checkout@v6"
@@ -171,6 +195,18 @@ jobs:
                     - "~7.3.0"
                     - "~7.4.0"
                     - "~8.0.0"
+
+                exclude:
+                    - symfony: "~6.0.0"
+                    - symfony: "~6.1.0"
+                    - symfony: "~6.2.0"
+                    - symfony: "~6.3.0"
+                    - symfony: "~7.0.0"
+                    - symfony: "~7.1.0"
+                    - php-version: "8.2"
+                      symfony: "~8.0.0"
+                    - php-version: "8.3"
+                      symfony: "~8.0.0"
 
         steps:
             -   name: "Checkout"
