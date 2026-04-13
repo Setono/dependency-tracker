@@ -336,6 +336,36 @@ final class TrackerTest extends TestCase
         self::assertSame('<?php echo "hello";', file_get_contents($dest));
     }
 
+    public function testSyncFileThrowsWhenRecursiveIsSet(): void
+    {
+        $this->createSourceFile('vendor/acme/package/File.php', 'content');
+
+        $config = new Config();
+        $config->track('vendor/acme/package/File.php')->recursive(false);
+
+        $tracker = new Tracker($this->io->reveal(), $this->projectRoot, $config);
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('vendor/acme/package/File.php');
+
+        $tracker->run();
+    }
+
+    public function testSyncFileThrowsWhenFilterIsSet(): void
+    {
+        $this->createSourceFile('vendor/acme/package/File.php', 'content');
+
+        $config = new Config();
+        $config->track('vendor/acme/package/File.php')->filter('*.php');
+
+        $tracker = new Tracker($this->io->reveal(), $this->projectRoot, $config);
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('vendor/acme/package/File.php');
+
+        $tracker->run();
+    }
+
     public function testSyncFileOverwritesExisting(): void
     {
         $this->createSourceFile('vendor/acme/package/File.php', 'version1');

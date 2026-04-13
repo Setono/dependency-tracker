@@ -52,6 +52,13 @@ final class Tracker
             if (is_dir($sourcePath)) {
                 $this->syncDirectory($track, $sourcePath, $destPath);
             } else {
+                if (!$track->isRecursive() || $track->getFilters() !== []) {
+                    throw new \RuntimeException(sprintf(
+                        '[DependencyTracker] The "recursive" and "filter" options are only applicable to directories, not files: %s',
+                        $track->getPath(),
+                    ));
+                }
+
                 $this->syncFile($sourcePath, $destPath);
             }
 
