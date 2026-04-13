@@ -86,30 +86,50 @@ final class TrackerTest extends TestCase
         self::assertDirectoryExists($this->projectRoot . '/.custom-snapshots');
     }
 
-    public function testRunEmitsWarningForNonExistentPath(): void
+    public function testRunThrowsForNonExistentPath(): void
     {
         $config = new Config();
         $config->track('vendor/nonexistent/path');
 
         $tracker = new Tracker($this->io->reveal(), $this->projectRoot, $config);
-        $tracker->run();
 
-        $this->io->writeError(Argument::containingString('Tracked path does not exist, skipping: vendor/nonexistent/path'))
-            ->shouldHaveBeenCalledOnce();
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('vendor/nonexistent/path');
+
+        $tracker->run();
     }
 
-    public function testRunContinuesAfterNonExistentPath(): void
+    public function testRunSyncsValidPathsBeforeThrowingForMissing(): void
     {
         $this->createSourceFile('vendor/existing/file.txt', 'hello');
 
         $config = new Config();
-        $config->track('vendor/nonexistent/path');
         $config->track('vendor/existing/file.txt');
+        $config->track('vendor/nonexistent/path');
 
         $tracker = new Tracker($this->io->reveal(), $this->projectRoot, $config);
-        $tracker->run();
+
+        try {
+            $tracker->run();
+        } catch (\RuntimeException $e) {
+            self::assertStringContainsString('vendor/nonexistent/path', $e->getMessage());
+        }
 
         self::assertFileExists($this->projectRoot . '/.dependency-snapshots/vendor/existing/file.txt');
+    }
+
+    public function testRunThrowsWithAllMissingPaths(): void
+    {
+        $config = new Config();
+        $config->track('vendor/missing/one');
+        $config->track('vendor/missing/two');
+
+        $tracker = new Tracker($this->io->reveal(), $this->projectRoot, $config);
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('vendor/missing/one');
+
+        $tracker->run();
     }
 
     public function testRunEmitsSummaryWithCorrectCount(): void
@@ -119,7 +139,6 @@ final class TrackerTest extends TestCase
 
         $config = new Config();
         $config->track('vendor/a/file.txt');
-        $config->track('vendor/nonexistent/path');
         $config->track('vendor/b/dir');
 
         $tracker = new Tracker($this->io->reveal(), $this->projectRoot, $config);

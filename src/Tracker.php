@@ -37,16 +37,14 @@ final class Tracker
         }
 
         $syncedCount = 0;
+        $missingPaths = [];
 
         foreach ($this->config->getTracks() as $track) {
             $sourcePath = $this->projectRoot . '/' . ltrim($track->getPath(), '/');
             $destPath = $snapshotRoot . '/' . ltrim($track->getPath(), '/');
 
             if (!file_exists($sourcePath)) {
-                $this->io->writeError(sprintf(
-                    '<warning>[DependencyTracker] Tracked path does not exist, skipping: %s</warning>',
-                    $track->getPath(),
-                ));
+                $missingPaths[] = $track->getPath();
 
                 continue;
             }
@@ -58,6 +56,13 @@ final class Tracker
             }
 
             ++$syncedCount;
+        }
+
+        if ($missingPaths !== []) {
+            throw new \RuntimeException(sprintf(
+                '[DependencyTracker] The following tracked path(s) do not exist: %s',
+                implode(', ', $missingPaths),
+            ));
         }
 
         $this->io->write(sprintf(
