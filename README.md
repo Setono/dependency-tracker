@@ -11,7 +11,7 @@ A Composer plugin that snapshots tracked files and directories from `vendor/` in
 ## Installation
 
 ```bash
-composer require setono/dependency-tracker
+composer require --dev setono/dependency-tracker
 ```
 
 ## Quick start
