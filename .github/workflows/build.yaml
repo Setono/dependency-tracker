@@ -66,14 +66,18 @@ jobs:
                 with:
                     php-version: "${{ matrix.php-version }}"
                     coverage: "none"
+                    tools: "composer-dependency-analyser"
 
             -   name: "Install composer dependencies"
                 uses: "ramsey/composer-install@v3"
                 with:
                     dependency-versions: "${{ matrix.dependencies }}"
 
+            -   name: "Remove require-dev section"
+                run: "composer config --unset require-dev"
+
             -   name: "Run dependency analysis"
-                run: "vendor/bin/composer-dependency-analyser"
+                run: "composer-dependency-analyser"
 
     static-code-analysis:
         name: "Static Code Analysis"
