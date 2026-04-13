@@ -15,7 +15,7 @@ jobs:
         strategy:
             matrix:
                 php-version:
-                    - "8.2"
+                    - "8.1"
 
                 dependencies:
                     - "highest"
@@ -49,6 +49,7 @@ jobs:
         strategy:
             matrix:
                 php-version:
+                    - "8.1"
                     - "8.2"
                     - "8.3"
                     - "8.4"
@@ -76,6 +77,8 @@ jobs:
                     - symfony: "~6.3.0"
                     - symfony: "~7.0.0"
                     - symfony: "~7.1.0"
+                    - php-version: "8.1"
+                      symfony: "~8.0.0"
                     - php-version: "8.2"
                       symfony: "~8.0.0"
                     - php-version: "8.3"
@@ -113,6 +116,7 @@ jobs:
         strategy:
             matrix:
                 php-version:
+                    - "8.1"
                     - "8.2"
                     - "8.3"
                     - "8.4"
@@ -141,6 +145,8 @@ jobs:
                     - symfony: "~6.3.0"
                     - symfony: "~7.0.0"
                     - symfony: "~7.1.0"
+                    - php-version: "8.1"
+                      symfony: "~8.0.0"
                     - php-version: "8.2"
                       symfony: "~8.0.0"
                     - php-version: "8.3"
@@ -175,6 +181,7 @@ jobs:
         strategy:
             matrix:
                 php-version:
+                    - "8.1"
                     - "8.2"
                     - "8.3"
                     - "8.4"
@@ -203,6 +210,8 @@ jobs:
                     - symfony: "~6.3.0"
                     - symfony: "~7.0.0"
                     - symfony: "~7.1.0"
+                    - php-version: "8.1"
+                      symfony: "~8.0.0"
                     - php-version: "8.2"
                       symfony: "~8.0.0"
                     - php-version: "8.3"
