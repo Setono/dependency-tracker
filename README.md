@@ -1,5 +1,10 @@
 # Dependency Tracker
 
+[![Latest Version][ico-version]][link-packagist]
+[![Software License][ico-license]][link-license]
+[![Build Status][ico-build]][link-build]
+[![Code Coverage][ico-code-coverage]][link-code-coverage]
+
 A Composer plugin that snapshots tracked files and directories from `vendor/` into a committed project directory. After each `composer install` or `composer update`, any changes in tracked paths become visible via `git diff`.
 
 ## Installation
@@ -109,3 +114,13 @@ composer remove setono/dependency-tracker
 ```
 
 Then delete `dependency-tracker.php` and `.dependency-snapshots/` from your project.
+
+[ico-version]: https://poser.pugx.org/setono/dependency-tracker/v/stable
+[ico-license]: https://poser.pugx.org/setono/dependency-tracker/license
+[ico-build]: https://github.com/Setono/dependency-tracker/actions/workflows/build.yaml/badge.svg?branch=master
+[ico-code-coverage]: https://codecov.io/gh/Setono/dependency-tracker/graph/badge.svg
+
+[link-packagist]: https://packagist.org/packages/setono/dependency-tracker
+[link-license]: LICENSE
+[link-build]: https://github.com/Setono/dependency-tracker/actions/workflows/build.yaml?query=branch%3Amaster
+[link-code-coverage]: https://codecov.io/gh/Setono/dependency-tracker
