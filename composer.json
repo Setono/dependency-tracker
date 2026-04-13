@@ -1,16 +1,17 @@
 {
     "name": "setono/dependency-tracker",
     "description": "A Composer plugin that snapshots tracked vendor files so changes are visible in git diff",
-    "type": "composer-plugin",
     "license": "MIT",
+    "type": "composer-plugin",
     "require": {
         "php": "^8.2",
         "composer-plugin-api": "^2.0"
     },
     "require-dev": {
         "composer/composer": "^2.0",
-        "phpunit/phpunit": "^11.0",
-        "phpspec/prophecy-phpunit": "^2.5"
+        "ergebnis/composer-normalize": "^2.50",
+        "phpspec/prophecy-phpunit": "^2.5",
+        "phpunit/phpunit": "^11.0"
     },
     "autoload": {
         "psr-4": {
@@ -20,6 +21,11 @@
     "autoload-dev": {
         "psr-4": {
             "Setono\\DependencyTracker\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "ergebnis/composer-normalize": true
         }
     },
     "extra": {
