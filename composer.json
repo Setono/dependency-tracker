@@ -11,6 +11,7 @@
     },
     "require-dev": {
         "ergebnis/composer-normalize": "^2.50",
+        "infection/infection": "*",
         "phpspec/prophecy": "^1.26",
         "phpspec/prophecy-phpunit": "^2.5",
         "phpstan/phpstan": "^2.1",
@@ -29,7 +30,8 @@
     },
     "config": {
         "allow-plugins": {
-            "ergebnis/composer-normalize": true
+            "ergebnis/composer-normalize": true,
+            "infection/extension-installer": true
         }
     },
     "extra": {

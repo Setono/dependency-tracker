@@ -4,6 +4,7 @@
 [![Software License][ico-license]][link-license]
 [![Build Status][ico-build]][link-build]
 [![Code Coverage][ico-code-coverage]][link-code-coverage]
+[![Mutation testing badge][ico-mutation]][link-mutation]
 
 A Composer plugin that snapshots tracked files and directories from `vendor/` into a committed project directory. After each `composer install` or `composer update`, any changes in tracked paths become visible via `git diff`.
 
@@ -119,8 +120,10 @@ Then delete `dependency-tracker.php` and `.dependency-snapshots/` from your proj
 [ico-license]: https://poser.pugx.org/setono/dependency-tracker/license
 [ico-build]: https://github.com/Setono/dependency-tracker/actions/workflows/build.yaml/badge.svg?branch=master
 [ico-code-coverage]: https://codecov.io/gh/Setono/dependency-tracker/graph/badge.svg
+[ico-mutation]: https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2FSetono%2Fdependency-tracker%2Fmaster
 
 [link-packagist]: https://packagist.org/packages/setono/dependency-tracker
 [link-license]: LICENSE
 [link-build]: https://github.com/Setono/dependency-tracker/actions/workflows/build.yaml?query=branch%3Amaster
 [link-code-coverage]: https://codecov.io/gh/Setono/dependency-tracker
+[link-mutation]: https://dashboard.stryker-mutator.io/reports/github.com/Setono/dependency-tracker/master
